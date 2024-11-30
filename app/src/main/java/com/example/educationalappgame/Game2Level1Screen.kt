@@ -154,7 +154,7 @@ fun Game2Level1Screen(navController: NavController) {
 
             // Next Button
             Button(
-                onClick = { navController.navigate("level1_game3") },
+                onClick = { navController.navigate("level2_game3") },
                 enabled = starsCollected == totalStars,
                 modifier = Modifier.padding(8.dp)
             ) {

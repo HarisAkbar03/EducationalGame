@@ -16,9 +16,9 @@ fun NavigationController() {
         composable("level_selection") { LevelSelectionScreen(navController) }
         composable("level1_game1") { Game1Level1Screen(navController) }
         composable("level1_game2") { Game2Level1Screen(navController) }
-       // composable("level1_game3") { Game3Level1Screen(navController) }
-        //composable("level2_game1") { Game1Level2Screen(navController) }
+        composable("level1_game3") { Game3Level1Screen(navController) }
+        composable("level2_game1") { Game1Level2Screen(navController) }
         //composable("level2_game2") { Game2Level2Screen(navController) }
-        //composable("level2_game3") { Game3Level2Screen(navController) }
+        composable("level2_game3") { Game3Level2Screen(navController) }
     }
 }
