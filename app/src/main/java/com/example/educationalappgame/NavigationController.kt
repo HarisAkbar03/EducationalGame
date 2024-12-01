@@ -11,7 +11,7 @@ fun NavigationController() {
 
     NavHost(navController = navController, startDestination = "main_screen") {
         composable("main_screen") { MainScreen(navController) }
-        //composable("register") { RegisterScreen(navController) }
+        composable("register") { RegisterScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("level_selection") { LevelSelectionScreen(navController) }
         composable("level1_game1") { Game1Level1Screen(navController) }
