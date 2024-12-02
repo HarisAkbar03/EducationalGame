@@ -1,45 +1,41 @@
 package com.example.educationalappgame
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
 @Composable
-fun Game1Level2Screen(navController: NavController){
-    val gridSize = 7 // 7x7 grid
-    val path = listOf(
-        Pair(0, 0), Pair(0, 1), Pair(0, 2), Pair(1, 2), Pair(2, 2),
-        Pair(2, 3), Pair(2, 4), Pair(3, 4), Pair(4, 4)
-    )
-    val coins = path.drop(1) // Coins appear along the path
-    var playerPosition by remember { mutableStateOf(path.first()) }
-    var collectedCoins by remember { mutableStateOf(0) }
-    val commands = remember { mutableStateListOf<String>() }
+fun Game1Level2Screen(navController: NavController) {
+    val gridSize = 5 // 5x5 Grid
+    val playerStart = Pair(0, 0)
+    val goalPosition = Pair(4, 4)
+    var playerPosition by remember { mutableStateOf(playerStart) }
+    var showWinDialog by remember { mutableStateOf(false) }
 
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Header
-            Text(
-                text = "Coins Collected: $collectedCoins/${coins.size}",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.primary
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Box {
+            // Background Image
+            Image(
+                painter = painterResource(id = R.drawable.screen1), // Replace with your image resource
+                contentDescription = "Background",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
 
-            // Game Grid
+            // Grid and Player
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -47,34 +43,63 @@ fun Game1Level2Screen(navController: NavController){
                     .padding(16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Column(verticalArrangement = Arrangement.SpaceEvenly) {
+                Column(
+                    verticalArrangement = Arrangement.SpaceEvenly,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     repeat(gridSize) { row ->
-                        Row(horizontalArrangement = Arrangement.SpaceEvenly) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
                             repeat(gridSize) { col ->
-                                val cellPosition = Pair(row, col)
-                                val isPlayer = playerPosition == cellPosition
-                                val isCoin = cellPosition in coins
-                                val isPath = cellPosition in path
+                                val isPlayer = playerPosition == Pair(row, col)
+                                val isGoal = goalPosition == Pair(row, col)
 
                                 Box(
                                     modifier = Modifier
-                                        .size(50.dp)
+                                        .size(60.dp)
                                         .background(
                                             when {
-                                                isPlayer -> Color.Blue
-                                                isCoin -> Color.Yellow
-                                                isPath -> Color.Cyan
-                                                else -> Color.LightGray
+                                                isPlayer -> Color.Blue // Player
+                                                isGoal -> Color.Green // Goal
+                                                else -> Color.Transparent // Transparent for empty cells
                                             }
                                         )
                                         .border(1.dp, Color.Black)
+                                        .pointerInput(Unit) {
+                                            detectDragGestures(
+                                                onDragEnd = {
+                                                    if (playerPosition == goalPosition) {
+                                                        showWinDialog = true
+                                                    }
+                                                },
+                                                onDrag = { _, dragAmount ->
+                                                    val (dx, dy) = dragAmount
+                                                    playerPosition = when {
+                                                        dx > 0 && playerPosition.second < gridSize - 1 -> Pair(
+                                                            playerPosition.first,
+                                                            playerPosition.second + 1
+                                                        )
+                                                        dx < 0 && playerPosition.second > 0 -> Pair(
+                                                            playerPosition.first,
+                                                            playerPosition.second - 1
+                                                        )
+                                                        dy > 0 && playerPosition.first < gridSize - 1 -> Pair(
+                                                            playerPosition.first + 1,
+                                                            playerPosition.second
+                                                        )
+                                                        dy < 0 && playerPosition.first > 0 -> Pair(
+                                                            playerPosition.first - 1,
+                                                            playerPosition.second
+                                                        )
+                                                        else -> playerPosition
+                                                    }
+                                                }
+                                            )
+                                        }
                                 ) {
-                                    if (isCoin && !isPlayer) {
-                                        Text(
-                                            text = "⭐",
-                                            fontSize = 18.sp,
-                                            modifier = Modifier.align(Alignment.Center)
-                                        )
+                                    if (isGoal) {
+                                        Text("🏁")
                                     }
                                 }
                             }
@@ -82,75 +107,20 @@ fun Game1Level2Screen(navController: NavController){
                     }
                 }
             }
+        }
 
-            // Control Panel
-            ControlPanel(commands = commands)
-
-            // Execute Commands Button
-            Button(onClick = {
-                executeCommands(commands, playerPosition, path, coins) { newPos, collected ->
-                    playerPosition = newPos
-                    collectedCoins += collected
+        // Win Dialog
+        if (showWinDialog) {
+            AlertDialog(
+                onDismissRequest = { },
+                title = { Text("Congratulations!") },
+                text = { Text("You've reached the finish line!") },
+                confirmButton = {
+                    Button(onClick = { navController.navigate("level_selection") }) {
+                        Text("Back to Levels")
+                    }
                 }
-            }) {
-                Text("Execute Commands")
-            }
+            )
         }
     }
-}
-
-@Composable
-fun ControlPanel(commands: MutableList<String>) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        listOf("Up", "Down", "Left", "Right").forEach { command ->
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(Color.Gray)
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDrag = { _, _ -> }, // No action needed while dragging
-                            onDragEnd = { commands.add(command) } // Add the command when drag ends
-                        )
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                Text(command, fontSize = 12.sp, color = Color.White)
-            }
-        }
-    }
-}
-
-fun executeCommands(
-    commands: List<String>,
-    playerPosition: Pair<Int, Int>,
-    path: List<Pair<Int, Int>>,
-    coins: List<Pair<Int, Int>>,
-    onExecute: (Pair<Int, Int>, Int) -> Unit
-) {
-    var currentPos = playerPosition
-    var collected = 0
-
-    commands.forEach { command ->
-        val newPos = when (command) {
-            "Up" -> currentPos.copy(first = currentPos.first - 1)
-            "Down" -> currentPos.copy(first = currentPos.first + 1)
-            "Left" -> currentPos.copy(second = currentPos.second - 1)
-            "Right" -> currentPos.copy(second = currentPos.second + 1)
-            else -> currentPos
-        }
-
-        if (newPos in path) {
-            currentPos = newPos
-            if (newPos in coins) {
-                collected++
-            }
-        }
-    }
-    onExecute(currentPos, collected)
 }
