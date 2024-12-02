@@ -20,19 +20,19 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun Game3Level2Screen(navController: NavController) {
+fun Game2Level2Screen(navController: NavController) {
     val customGrid = listOf(
-        listOf(1, 1, 1, 1, 1),
-        listOf(1, 0, 0, 0, 0),
-        listOf(1, 1, 1, 1, 1),
         listOf(0, 0, 0, 0, 1),
-        listOf(1, 1, 1, 1, 1)
+        listOf(1, 0, 0, 0, 1),
+        listOf(1, 1, 1, 0, 1),
+        listOf(0, 0, 1, 0, 1),
+        listOf(0, 0, 1, 1, 1)
     )
     val gridSize = customGrid.size
     val cellSize = 60.dp
 
     // Starting position: bottom-left corner of the "S"
-    val startingPosition = Pair(4, 0)
+    val startingPosition = Pair(1, 0)
     // Goal position: top-right corner of the "S"
     val goalPosition = Pair(0, 4)
 
@@ -224,8 +224,8 @@ fun Game3Level2Screen(navController: NavController) {
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Button(onClick = { navController.navigate("level_selection") }) {
-                            Text("Go to Level Selection")
+                        Button(onClick = { navController.navigate("level2_game3") }) {
+                            Text("Next Level")
                         }
                         Button(onClick = { (navController.context as? Activity)?.finish() }) {
                             Text("Exit Game")

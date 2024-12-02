@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -25,6 +26,7 @@ fun MainScreen(navController: NavController) {
             Image(
                 painter = painterResource(id = R.drawable.background), // Replace with your background image resource
                 contentDescription = "Background",
+                contentScale = ContentScale.Crop, // Ensures the image scales and fills the screen
                 modifier = Modifier.fillMaxSize()
             )
 
